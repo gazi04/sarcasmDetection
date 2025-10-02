@@ -1,17 +1,10 @@
-from typing import List, Dict, Any
-
-# from models import TrainingData, ModelResult
-# from config import LogisticRegressionConfig, ModelConfig
-# from model_trainers import LogisticRegressionTrainer, NaiveBayesTrainer
-# from evaluator import ModelEvaluator, PredictionService
-# from preproces import text_preprocessing
-
 from ai_core.data.models import ModelResult, TrainingData
 from ai_core.models.logistic_regression_trainer import LogisticRegressionTrainer
 from ai_core.models.bayes_naive_trainer import NaiveBayesTrainer
 from ai_core.config import ModelConfig, LogisticRegressionConfig
 from ai_core.training.evaluator import ModelEvaluator, PredictionService
 from ai_core.utils.preproces import text_preprocessing
+from typing import List, Dict, Any
 
 class SarcasmDetectionPipeline:
     def __init__(self):
@@ -69,3 +62,66 @@ class SarcasmDetectionPipeline:
         best_model = max(model_results.values(), key=lambda x: x.accuracy)
         print(f"\nBest Model: {best_model.model_name} ({best_model.accuracy:.2%})")
 
+    def data_analysis(self, data: TrainingData) -> None:
+            print("\n" + "="*50)
+            print("EXPLORATORY ANALYSIS")
+            print("="*50)
+            
+            self._show_basic_statistics(data)
+            
+            self._show_word_frequencies(data)
+            
+            self._show_text_length_stats(data)
+
+    def _show_basic_statistics(self, data: TrainingData) -> None:
+        print("\nBASIC STATISTICS:")
+        print(f"\t• Total samples: {len(data.headlines):,}")
+        print(f"\t• Sarcastic samples: {sum(data.labels):,} ({sum(data.labels)/len(data.labels):.1%})")
+        print(f"\t• Non-sarcastic samples: {len(data.labels)-sum(data.labels):,} ({(len(data.labels)-sum(data.labels))/len(data.labels):.1%})")
+        
+        distribution = data.get_class_distribution()
+        print(f"\t• Class distribution: {distribution}")
+
+    def _show_word_frequencies(self, data: TrainingData, top_n: int = 15) -> None:
+        print(f"\nMOST FREQUENT WORDS (Top {top_n}):")
+        
+        sarcastic_texts = [text for text, label in zip(data.headlines, data.labels) if label == 1]
+        non_sarcastic_texts = [text for text, label in zip(data.headlines, data.labels) if label == 0]
+        
+        sarcastic_words = self._get_word_frequencies(sarcastic_texts, top_n)
+        non_sarcastic_words = self._get_word_frequencies(non_sarcastic_texts, top_n)
+        
+        print("Sarcastic headlines:")
+        for i, (word, freq) in enumerate(sarcastic_words, 1):
+            print(f"      {i:2d}. {word:<15} ({freq} occurrences)")
+        
+        print(f"Non-sarcastic headlines:")
+        for i, (word, freq) in enumerate(non_sarcastic_words, 1):
+            print(f"      {i:2d}. {word:<15} ({freq} occurrences)")
+
+    def _get_word_frequencies(self, texts: List[str], top_n: int) -> List[tuple]:
+        from collections import Counter
+        import re
+        
+        all_words = []
+        for text in texts:
+            words = re.findall(r'\b[a-zA-Z]{2,}\b', text.lower()) # Words with 2+ letters
+            all_words.extend(words)
+        
+        word_freq = Counter(all_words)
+        return word_freq.most_common(top_n)
+
+    def _show_text_length_stats(self, data: TrainingData) -> None:
+        print("\nTEXT LENGTH STATISTICS:")
+        
+        sarcastic_lengths = [len(text.split()) for text, label in zip(data.headlines, data.labels) if label == 1]
+        non_sarcastic_lengths = [len(text.split()) for text, label in zip(data.headlines, data.labels) if label == 0]
+        
+        print("\t• Average words per headline:")
+        print(f"\t\t- Sarcastic: {sum(sarcastic_lengths)/len(sarcastic_lengths):.1f} words")
+        print(f"\t\t- Non-sarcastic: {sum(non_sarcastic_lengths)/len(non_sarcastic_lengths):.1f} words")
+        print(f"\t\t- Overall: {sum(len(text.split()) for text in data.headlines)/len(data.headlines):.1f} words")
+        
+        print("\t• Headline length range:")
+        print(f"\t\t- Shortest: {min(len(text.split()) for text in data.headlines)} words")
+        print(f"\t\t- Longest: {max(len(text.split()) for text in data.headlines)} words")
