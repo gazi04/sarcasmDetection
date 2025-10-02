@@ -1,10 +1,16 @@
 import re
 import string
+import nltk
+nltk.download("stopwords")
+nltk.download("punkt_tab")
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
 
 def text_preprocessing(text: str) -> str:
     text.lower()
     text = _remove_urls(text)
     text = _remove_punctuations(text)
+    text = _remove_stop_words(text)
     return text
 
 def _remove_urls(text: str, replacement_text: str ="[URL REMOVED]") -> str:
@@ -23,9 +29,10 @@ def _remove_punctuations(text: str) -> str:
     return text.translate(translator)
 
 def _remove_stop_words(text: str) -> str:
-    tokens = text.split()
     
-    basic_stop_words = {'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at'}
-    tokens = [token for token in tokens if token not in basic_stop_words]
-    
-    return ' '.join(tokens)
+    words = word_tokenize(text)
+    stop_words = set(stopwords.words("english"))
+
+    filtered_words = [word for word in words if word not in stop_words]
+
+    return " ".join(filtered_words)
