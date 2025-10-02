@@ -75,6 +75,6 @@ class PredictionService:
         )
     
     def print_prediction(self, prediction: PredictionResult):
-        print(f"Headline: '{prediction.text}'")
-        print(f"Prediction: {prediction.prediction_label}")
-        print(f"Confidence: {prediction.confidence:.2%}")
+        print(f"\tHeadline: '{prediction.text}'")
+        print(f"\tPrediction: {prediction.prediction_label}")
+        print(f"\tConfidence: {prediction.confidence:.2%}")

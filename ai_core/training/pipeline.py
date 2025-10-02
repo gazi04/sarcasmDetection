@@ -17,7 +17,7 @@ class SarcasmDetectionPipeline:
             "logistic_regression": LogisticRegressionTrainer(self.lr_config),
             "naive_bayes": NaiveBayesTrainer(self.nb_config)
         }
-    
+
     def prepare_data(self, raw_data: List[Dict[str, Any]]) -> TrainingData:
         headlines = []
         labels = []
@@ -33,7 +33,9 @@ class SarcasmDetectionPipeline:
         results = {}
         
         for name, trainer in self.trainers.items():
-            print(f"\nTraining {name.replace('_', ' ').title()}...")
+            print("\n" + "="*50)
+            print(f"TRAINING {name.replace('_', ' ').title()}...")
+            print("="*50)
             result = trainer.train(data)
             result = self.evaluator.evaluate_model(result)
             self.evaluator.plot_confusion_matrix(result)
@@ -42,7 +44,9 @@ class SarcasmDetectionPipeline:
         return results
     
     def run_predictions(self, model_results: Dict[str, ModelResult], test_texts: List[str]):
-        print("\nTesting with sample predictions:")
+        print("\n" + "="*50)
+        print("TESTING WITH SAMPLE PREDICTIONS:")
+        print("="*50)
         
         for text in test_texts:
             print(f"\n--- Testing: '{text}' ---")
