@@ -1,13 +1,9 @@
 import json
 
-from model_training import main
-from preproces import text_preprocessing
-from utils import count_characters, count_words
+from ai_core.utils.preproces import text_preprocessing
+from ai_core.training.pipeline import SarcasmDetectionPipeline
 
 data = []
-words_per_headline:list[int] = []
-chars_per_headline: list[int] = []
-word_lengths: list[int] = []
 
 try:
     with open('dataset.json', 'r', encoding='utf-8') as file:
@@ -18,22 +14,26 @@ try:
                 item:dict = json.loads(stripped_line)
                 item.pop("article_link")
                 processed_headline = text_preprocessing(item["headline"])
-
-                words_per_headline.append(count_words(processed_headline))
-                chars_per_headline.append(count_characters(processed_headline))
-                
-                # for word in item.get("headline").
-
                 data.append(item)
-                
 except FileNotFoundError:
     print("Error: The file 'dataset.json' was not found.")
 except json.JSONDecodeError as e:
     print(f"Error: Failed to decode JSON from a line. Details: {e}")
 
 
-if __name__ == "__main__":
-    print(f"Successfully loaded {len(data)} records.")
-    
-    model, vectorizer, accuracy = main(data)
-    
+pipeline = SarcasmDetectionPipeline()
+training_data = pipeline.prepare_data(data)
+
+print(f"Loaded {len(training_data.headlines)} headlines")
+# pipeline.data_analysis(training_data)
+
+model_results = pipeline.train_models(training_data)
+
+test_headlines = [
+    "Scientists discover that staring at screens all day is great for your health",
+    "Breaking news: local man goes to work on Monday",
+    "Israel 'tightens siege' of Gaza City as Hamas reviews Trump peace plan",
+]
+
+pipeline.run_predictions(model_results, test_headlines)
+pipeline.print_summary(model_results)

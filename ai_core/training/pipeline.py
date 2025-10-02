@@ -129,3 +129,95 @@ class SarcasmDetectionPipeline:
         print("\t• Headline length range:")
         print(f"\t\t- Shortest: {min(len(text.split()) for text in data.headlines)} words")
         print(f"\t\t- Longest: {max(len(text.split()) for text in data.headlines)} words")
+
+    # =======================================================================
+    #     METHODS USED FOR THE API CORE 
+    # =======================================================================
+
+    def get_training_comparison(self, model_results: Dict[str, ModelResult]) -> Dict[str, Any]:
+        comparison = {
+            "models": [],
+            "best_model": "",
+            "best_accuracy": 0.0
+        }
+        
+        for name, result in model_results.items():
+            model_data = {
+                "name": result.model_name,
+                "type": name,
+                "accuracy": float(result.accuracy),
+                "test_set_size": len(result.y_test)
+            }
+            comparison["models"].append(model_data)
+            
+            if result.accuracy > comparison["best_accuracy"]:
+                comparison["best_accuracy"] = float(result.accuracy)
+                comparison["best_model"] = result.model_name
+        
+        return comparison
+
+    def get_predictions(self, model_results: Dict[str, ModelResult], headline: str) -> Dict[str, Any]:
+        predictions = {
+            "headline": headline,
+            "predictions": []
+        }
+        
+        for name, result in model_results.items():
+            prediction_result = self.prediction_service.predict_sarcasm(result, headline)
+            
+            prediction_data = {
+                "model_name": result.model_name,
+                "model_type": name,
+                "prediction": prediction_result.prediction_label,
+                "is_sarcastic": bool(prediction_result.is_sarcastic),
+                "confidence": float(prediction_result.confidence)
+            }
+            predictions["predictions"].append(prediction_data)
+        
+        return predictions
+
+    def get_analysis_data(self, data: TrainingData) -> Dict[str, Any]:
+        total_samples = len(data.headlines)
+        sarcastic_count = sum(data.labels)
+        non_sarcastic_count = total_samples - sarcastic_count
+        
+        class_distribution = data.get_class_distribution()
+        class_distribution_str = {str(key): value for key, value in class_distribution.items()}
+        
+        basic_stats = {
+            "total_samples": total_samples,
+            "sarcastic_samples": sarcastic_count,
+            "non_sarcastic_samples": non_sarcastic_count,
+            "sarcastic_percentage": float(sarcastic_count / total_samples),
+            "non_sarcastic_percentage": float(non_sarcastic_count / total_samples),
+            "class_distribution": class_distribution_str
+        }
+        
+        sarcastic_texts = [text for text, label in zip(data.headlines, data.labels) if label == 1]
+        non_sarcastic_texts = [text for text, label in zip(data.headlines, data.labels) if label == 0]
+        
+        word_frequencies = {
+            "sarcastic": [{"word": word, "frequency": freq} for word, freq in self._get_word_frequencies(sarcastic_texts, 10)],
+            "non_sarcastic": [{"word": word, "frequency": freq} for word, freq in self._get_word_frequencies(non_sarcastic_texts, 10)]
+        }
+        
+        sarcastic_lengths = [len(text.split()) for text, label in zip(data.headlines, data.labels) if label == 1]
+        non_sarcastic_lengths = [len(text.split()) for text, label in zip(data.headlines, data.labels) if label == 0]
+        
+        text_stats = {
+            "average_words": {
+                "sarcastic": float(sum(sarcastic_lengths) / len(sarcastic_lengths)) if sarcastic_lengths else 0,
+                "non_sarcastic": float(sum(non_sarcastic_lengths) / len(non_sarcastic_lengths)) if non_sarcastic_lengths else 0,
+                "overall": float(sum(len(text.split()) for text in data.headlines) / len(data.headlines))
+            },
+            "length_range": {
+                "shortest": min(len(text.split()) for text in data.headlines),
+                "longest": max(len(text.split()) for text in data.headlines)
+            }
+        }
+        
+        return {
+            "basic_statistics": basic_stats,
+            "word_frequencies": word_frequencies,
+            "text_length_stats": text_stats
+        }
