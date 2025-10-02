@@ -24,3 +24,5 @@ dev = [
 venvPath = "."
 venv = ".venv"
 
+[tool.setuptools]
+packages = ["api", "ai_core"]
