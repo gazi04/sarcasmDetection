@@ -80,7 +80,7 @@ async def root():
     }
 
 @app.post("/train", response_model=TrainingResponse)
-async def train_models(request: TrainingRequest):
+async def train_models():
     try:
         pipeline = app_state["pipeline"]
         training_data = app_state["training_data"]
