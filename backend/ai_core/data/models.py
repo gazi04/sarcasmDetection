@@ -1,3 +1,10 @@
+"""
+Data structures used throughout the pipeline.
+- TrainingData: clean texts and labels prepared for modeling
+- ModelResult: trained estimator, vectorizer, test split and metrics holder
+- PredictionResult: single-sample prediction output with label and confidence
+"""
+
 from dataclasses import dataclass
 from typing import Dict, List, Any
 import pandas as pd

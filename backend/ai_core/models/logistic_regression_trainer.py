@@ -1,3 +1,11 @@
+"""
+Logistic Regression trainer using TF-IDF features.
+
+Vectorizes text with TfidfVectorizer and fits a LogisticRegression model
+with configurable solver parameters, returning a ModelResult for evaluation
+and predictions.
+"""
+
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 

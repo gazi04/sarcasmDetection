@@ -1,3 +1,11 @@
+"""
+Text preprocessing utilities for cleaning and tokenizing headlines.
+
+It provides helper functions to remove URLs and punctuation, strip English stop words, and
+tokenize text. These helpers are used by the pipeline before vectorization and 
+model training/prediction.
+"""
+
 import re
 import string
 import nltk

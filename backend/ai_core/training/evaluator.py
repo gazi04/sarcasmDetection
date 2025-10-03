@@ -1,3 +1,12 @@
+"""
+Model evaluation utilities and a simple prediction service.
+
+The ModelEvaluator is responsilbe for computing accuracy, printing classification reports,
+and saving confusion matrices. 
+And the Prediction service offers a feature to transform text
+and obtain predictions with confidence and human-readable labels.
+"""
+
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 import matplotlib.pyplot as plt
 import seaborn as sns

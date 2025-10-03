@@ -1,3 +1,7 @@
+"""
+Abstract base class for model trainers.
+"""
+
 from abc import ABC, abstractmethod
 from typing import List
 from sklearn.model_selection import train_test_split

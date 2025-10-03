@@ -1,3 +1,10 @@
+"""
+Multinomial Naive Bayes trainer using bag-of-words features.
+
+Vectorizes text with CountVectorizer and trains a MultinomialNB classifier,
+returning a ModelResult ready for evaluation and predictions.
+"""
+
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.naive_bayes import MultinomialNB
 

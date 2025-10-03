@@ -1,3 +1,11 @@
+"""
+End-to-end pipeline that prepares data, trains models, evaluates, and predicts.
+
+This class orchestrates preprocessing, training both Logistic Regression and
+Naive Bayes models, evaluating them, generating artifacts, and providing
+helpers to expose comparable results and predictions to the API layer.
+"""
+
 from ai_core.data.models import ModelResult, TrainingData
 from ai_core.models.logistic_regression_trainer import LogisticRegressionTrainer
 from ai_core.models.bayes_naive_trainer import NaiveBayesTrainer

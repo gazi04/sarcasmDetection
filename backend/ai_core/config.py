@@ -1,3 +1,11 @@
+"""
+Configuration objects and constants for the sarcasm detection system.
+
+This module defines dataclasses to centralize tunable parameters for data
+splits, vectorizers, model training, and artifact paths. It also contains
+shared label/name constants used across training and evaluation.
+"""
+
 from dataclasses import dataclass
 
 @dataclass
